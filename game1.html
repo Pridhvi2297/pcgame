@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tic Tac Toe</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            text-align: center;
+            background-color: antiquewhite;
+            font-weight: bold;
+        }
+
+        .container {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
+
+        .square {
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 50px;
+            line-height: 98px;
+            cursor: pointer;
+            display: inline-block;
+            box-sizing: border-box;
+            vertical-align: top;
+            margin: 0;
+            padding: 0;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        
+        .square img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .board-3 {
+            width: 304px;
+            height: 304px;
+        }
+        .board-4 {
+            width: 404px;
+            height: 404px;
+        }
+        .board-5 {
+            width: 504px;
+            height: 504px;
+        }        
+          
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Tic Tac Toe</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="./index.html">Home</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+	<div class="container">
+		<h1>Tic Tac Toe</h1>
+		<div class="row">
+			<div class="col-md-6">
+				<label for="boardSize">Select Board Size:</label>
+				<select class="form-control" id="boardSize">
+					<option value="3">3x3</option>
+					<option value="4">4x4</option>
+					<option value="5">5x5</option>
+				</select>
+			</div>
+		</div>
+		<div class="row mt-4">
+			<div class="col-md-6">
+				<div id="gameBoard" class="board-3"></div>
+				<button id="resetButton" class="btn btn-primary mt-4">Reset</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        var boardSize = 3;
+        var currentPlayer = "X";
+        var gameBoard = [];
+        var gameWon = false;
+        
+        function createBoard() {
+            // Clear the game board
+            gameBoard = [];
+            gameWon = false;
+            $("#gameBoard").empty().removeClass().addClass(`board-${boardSize}`);
+            
+            // Set the --board-size custom property
+            document.documentElement.style.setProperty('--board-size', boardSize);
+          
+            // Create the squares for the game board
+            for (var row = 0; row < boardSize; row++) {
+              gameBoard[row] = [];
+              for (var col = 0; col < boardSize; col++) {
+                var square = $("<div>")
+                  .addClass("square")
+                  .attr("data-row", row)
+                  .attr("data-col", col)
+                  .text("");
+                  square.click(function() {
+                    if (!gameWon && $(this).text() == "") {
+                      var imgSrc = currentPlayer == "X" ? "https://www.freeiconspng.com/uploads/x-png-33.png" : "https://www.freeiconspng.com/uploads/-button-stop-stop-playing-video-player-icon-29.png";
+                      $(this).html(`<img src="${imgSrc}" alt="${currentPlayer}">`);
+                      gameBoard[$(this).data("row")][$(this).data("col")] = currentPlayer;
+                      checkWin();
+                      switchPlayer();
+                    } else if (gameWon) {
+                      alert("Game is over. Please reset to start a new game.");
+                    }
+                });
+                
+                $("#gameBoard").append(square);
+                gameBoard[row][col] = "";
+              }
+            }
+          }
+          
+           
+          function switchPlayer() {
+            if (!gameWon) {
+              var squares = $(".square");
+              var emptySquares = squares.filter(function() {
+                return $(this).text() == "";
+              });
+              if (currentPlayer == "X") {
+                currentPlayer = "O";
+                emptySquares.css("cursor", "url(o.png), auto");
+              } else {
+                currentPlayer = "X";
+                emptySquares.css("cursor", "url(x.png), auto");
+              }
+            }
+          }
+          
+        
+          function checkWin() {
+            // Check rows
+            for (var row = 0; row < boardSize; row++) {
+                if (gameBoard[row].join("") == "X".repeat(boardSize) || gameBoard[row].join("") == "O".repeat(boardSize)) {
+                    gameWon = true;
+                    alert(currentPlayer + " wins!");
+                    return;
+                }
+            }
+        
+            // Check columns
+            for (var col = 0; col < boardSize; col++) {
+                var colValues = [];
+                for (var row = 0; row < boardSize; row++) {
+                    colValues.push(gameBoard[row][col]);
+                }
+                if (colValues.join("") == "X".repeat(boardSize) || colValues.join("") == "O".repeat(boardSize)) {
+                    gameWon = true;
+                    alert(currentPlayer + " wins!");
+                    return;
+                }
+            }
+        
+            // Check diagonals
+            var diagonal1 = [];
+            var diagonal2 = [];
+            for (var i = 0; i < boardSize; i++) {
+                diagonal1.push(gameBoard[i][i]);
+                diagonal2.push(gameBoard[i][boardSize - 1 - i]);
+            }
+            if (diagonal1.join("") == "X".repeat(boardSize) || diagonal1.join("") == "O".repeat(boardSize)) {
+                gameWon = true;
+                alert(currentPlayer + " wins!");
+                return;
+            }
+            if (diagonal2.join("") == "X".repeat(boardSize) || diagonal2.join("") == "O".repeat(boardSize)) {
+                gameWon = true;
+                alert(currentPlayer + " wins!");
+                return;
+            }
+        
+            // Check tie
+            var emptySquares = $(".square").filter(function() {
+                return $(this).text() == "";
+            });
+            if (emptySquares.length == 0) {
+                gameWon = true;
+                alert("Tie!");
+                return;
+            }
+        }
+            
+        $(document).ready(function() {
+            createBoard();
+        
+            $("#boardSize").change(function() {
+                boardSize = parseInt($(this).val());
+                createBoard();
+            });
+        
+            $("#resetButton").click(function() {
+                createBoard();
+                currentPlayer = "X";
+            });
+        
+        });
+        
+            
+        
+    </script>
+</body>
+</html>
